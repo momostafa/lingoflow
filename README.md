@@ -30,6 +30,29 @@ LingoFlow enables conversational rehearsal, automated local voice track generati
 
 ---
 
+## 📸 Screenshots
+
+<div align="center">
+
+### Practice Dashboard
+<img src="docs/screenshots/practice-dashboard.png" width="800">
+
+### Phrase Management
+<img src="docs/screenshots/phrase-management.png" width="800">
+
+### Settings Panel
+<img src="docs/screenshots/settings-panel.png" width="800">
+
+### AI Copilot
+<img src="docs/screenshots/ai-copilot.png" width="800">
+
+### Help Tab
+<img src="docs/screenshots/help-tab.png" width="800">
+
+</div>
+
+---
+
 ## 🏗️ Architecture
 
 ```text
