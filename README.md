@@ -11,7 +11,7 @@
 
 LingoFlow enables conversational rehearsal, automated local voice track generation, and dynamic, context-aware linguistic advice powered completely by open-weight LLMs running locally on your hardware.
 
-[⭐ Star this repo](https://github.com/yourusername/lingoflow) • [🐛 Report Issue](https://github.com/yourusername/lingoflow/issues) • [📖 Documentation](https://github.com/yourusername/lingoflow/wiki)
+[⭐ Star this repo](https://github.com/momostafa/lingoflow) • [🐛 Report Issue](https://github.com/momostafa/lingoflow/issues) • [📖 Documentation](https://github.com/momostafa/lingoflow/wiki)
 
 </div>
 
@@ -59,7 +59,7 @@ LingoFlow enables conversational rehearsal, automated local voice track generati
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/lingoflow.git
+git clone https://github.com/momostafa/lingoflow.git
 cd lingoflow
 ```
 

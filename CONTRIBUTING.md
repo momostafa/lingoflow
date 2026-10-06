@@ -32,7 +32,7 @@ When creating a bug report, include:
 1. Clone your fork locally:
 
 ```bash
-git clone https://github.com/yourusername/lingoflow.git
+git clone https://github.com/YOUR_USERNAME/lingoflow.git
 cd lingoflow
 ```
 
