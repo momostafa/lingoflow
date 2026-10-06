@@ -195,6 +195,58 @@ The application automatically fetches available macOS voices. Supported language
 
 ---
 
+## 🗺️ Future Roadmap
+
+Planned features and enhancements for upcoming releases:
+
+### Short-Term Goals
+
+- **🎯 Topic-Based Phrase Generation**
+  - Ask AI to generate sets of phrases/translations by specific topics
+  - Example: "Generate 5 short sales lines related to Egyptian Papyrus"
+  - Category-based organization and bulk import
+
+- **🌐 Cross-Platform TTS Support**
+  - Add voice engine compatibility for Windows (using SAPI or Microsoft Speech Platform)
+  - Add voice engine compatibility for Linux (using eSpeak-ng, Festival, or Mozilla TTS)
+  - Unified audio generation API with platform detection
+
+### Medium-Term Goals
+
+- **📊 Advanced Analytics Dashboard**
+  - Learning progress visualization with charts
+  - Session tracking and study time metrics
+  - Weakness identification and targeted practice recommendations
+
+- **🎮 Gamification Features**
+  - Achievement badges and milestones
+  - Daily streak tracking
+  - Spaced repetition scheduling
+
+- **📚 Content Library**
+  - Pre-built phrase packs for common scenarios (travel, business, medical)
+  - Community-shared phrase collections
+  - Import/export of custom phrase libraries
+
+### Long-Term Goals
+
+- **🤖 Enhanced AI Capabilities**
+  - Context-aware conversation practice mode
+  - Grammar error detection and correction
+  - Pronunciation analysis using audio input
+
+- **🔗 Multi-Device Sync**
+  - Cloud synchronization (self-hosted options)
+  - Mobile app companion
+  - Offline-first architecture with online backup
+
+- **🌍 Extended Language Support**
+  - Add more languages (German, Japanese, Chinese, etc.)
+  - Regional dialect support
+  - Custom language pack loading
+
+---
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
