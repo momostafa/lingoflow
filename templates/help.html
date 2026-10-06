@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="onboarding-container">
+    <!-- Header Section -->
+    <div class="border-b pb-4 mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 tracking-tight">📚 LingoFlow System Documentation & Help</h1>
+        <p class="text-gray-600 mt-2">Learn how to maximize your linguistic practice, configure local AI engines, and manage static audio assets.</p>
+    </div>
+
+    <!-- Core Features Grid -->
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            🚀 Core Application Features
+        </h2>
+        <div class="grid md:grid-cols-2 gap-4">
+            <div class="p-5 border rounded-xl bg-white shadow-sm">
+                <h3 class="font-bold text-gray-900 flex items-center gap-2">🎛️ Unified Practice Matrix</h3>
+                <p class="text-gray-600 text-sm mt-1">Review conversational expressions across multiple languages simultaneously. Filter dynamically by categories (e.g., Bargaining, Transit, Social) to narrow down focus paths.</p>
+            </div>
+            <div class="p-5 border rounded-xl bg-white shadow-sm">
+                <h3 class="font-bold text-gray-900 flex items-center gap-2">🔊 Self-Compiling Audio Tracks</h3>
+                <p class="text-gray-600 text-sm mt-1">The system scans local hard drive buffers on demand. If an audio file disappears or hasn't been generated yet, a native macOS TTS sub-routine instantly compiles it.</p>
+            </div>
+            <div class="p-5 border rounded-xl bg-white shadow-sm">
+                <h3 class="font-bold text-gray-900 flex items-center gap-2">⚡ Interactive AI Copilot</h3>
+                <p class="text-gray-600 text-sm mt-1">Launches an instantaneous side drawer to harvest context-aware tactical tips, word-for-word grammatical decompositions, or localized bazaar negotiation lines.</p>
+            </div>
+            <div class="p-5 border rounded-xl bg-white shadow-sm">
+                <h3 class="font-bold text-gray-900 flex items-center gap-2">📥 Dynamic CSV Spreadsheet Import</h3>
+                <p class="text-gray-600 text-sm mt-1">Bulk load vocabulary charts instantly. The system sanitizes text blocks, flags missing target cells, and formats SQLite indexing anchors automatically.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Architecture Configurations -->
+    <section class="mb-12 border-t pt-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            🤖 AI Engine Interfacing (llama.cpp vs. LM Studio)
+        </h2>
+        <p class="text-gray-600 text-sm mb-4">
+            LingoFlow utilizes a refactored unified <code>AsyncOpenAI</code> engine pipeline. You can dynamically switch endpoints via your Settings panel row:
+        </p>
+        <div class="overflow-x-auto border rounded-lg bg-gray-50">
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                    <tr class="bg-gray-100 border-b font-medium text-gray-700">
+                        <th class="p-3">Target Platform</th>
+                        <th class="p-3">Default Base URL</th>
+                        <th class="p-3">Recommended Server Flags</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y text-gray-600">
+                    <tr>
+                        <td class="p-3 font-semibold text-gray-900">llama-server</td>
+                        <td class="p-3"><code>http://127.0.0.1:8080</code></td>
+                        <td class="p-3"><code>-c 4096 -np 1</code> (Enforces single-lane max performance)</td>
+                    </tr>
+                    <tr>
+                        <td class="p-3 font-semibold text-gray-900">LM Studio</td>
+                        <td class="p-3"><code>http://127.0.0.1:1234</code></td>
+                        <td class="p-3">Ensure Cross-Origin Resource Sharing (CORS) is explicitly checked.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-4 p-4 rounded-lg border bg-amber-50 text-amber-800 text-xs flex gap-2">
+            <strong>⚠️ Troubleshooting Tip:</strong> If your side modal drawer displays indefinitely or fails to fetch, launch your browser dev console. Ensure the host endpoint is up, running, and successfully answering requests on the exact port configured in your app panel.
+        </div>
+    </section>
+
+    <!-- Troubleshooting FAQ -->
+    <section class="border-t pt-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">❓ Frequently Asked Questions</h2>
+        <div class="space-y-4">
+            <div>
+                <h4 class="font-bold text-gray-900 text-sm">How do I trigger full audio rebuilds?</h4>
+                <p class="text-gray-600 text-xs mt-1">Navigate to your dashboard footer or toolbar parameters and tap "Regenerate Missing Assets". This will safely cross-verify every database phrase against local disk memory storage paths.</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-gray-900 text-sm">Can I modify the AI's persona tone guidelines?</h4>
+                <p class="text-gray-600 text-xs mt-1">Yes! In your system setup settings, shift between the **Bazaar Negotiator** profile (for sharp counter-offers) and the **Linguistic Tutor** matrix (for detailed semantic grammar tear-downs).</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+    .onboarding-container { max-width: 800px; margin: 40px auto; padding: 30px; }
+    h2 { color: #e67e22; text-align: center; }
+    .info-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 30px; border-left: 5px solid #3498db; }
+    h3 { margin-top: 0; color: #2c3e50; }
+    ul, ol { line-height: 1.6; }
+    code { background: #f0f0f0; padding: 2px 4px; border-radius: 4px; font-family: monospace; }
+    .action-buttons { text-align: center; margin-top: 40px; }
+    .btn-primary { background: #3498db; color: white; padding: 15px 40px; border-radius: 6px; text-decoration: none; font-weight: bold; transition: 0.2s; }
+    .btn-primary:hover { background: #2980b9; }
+</style>
+{% endblock %}

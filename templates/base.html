@@ -1,0 +1,89 @@
+<!-- language_practice/templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LingoFlow{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        /* Top Navigation Menu Bar Styling Blueprint */
+        .navbar {
+            background-color: #d0cec0;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 4px solid #3b82f6;
+            margin-bottom: 24px;
+            border-radius: 0 0 12px 12px;
+        }
+        .nav-brand {
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 20px;
+            letter-spacing: -0.025em;
+        }
+        .nav-links {
+            display: flex;
+            gap: 16px;
+        }
+        .nav-item {
+            color: #94a3b8;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.15s ease;
+        }
+        .nav-item:hover, .nav-item.active {
+            color: #ffffff;
+            background-color: #1e293b;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="workspace-container">
+        <!-- Persistent Offline Tab Navigation Header Bar Wrapper -->
+        <div class="nav-links">
+            <button onclick="switchTab('dashboard-main-view')" id="nav-dashboard-main-view" class="nav-item" style="background:gray; border:none;">🎛️ Practice Dashboard</button>
+            <button onclick="switchTab('management-view')" id="nav-management-view" class="nav-item" style="background:gray; border:none;">📝 Phrase Management</button>
+            <button onclick="switchTab('settings-view')" id="nav-settings-view" class="nav-item" style="background:gray; border:none;">⚙️ Settings Panel</button>
+            <button onclick="switchTab('help-view')" id="nav-help-view" class="nav-item" style="background:gray; border:none;">❓ Help</button>
+        </div>
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Global modals and overlays that sit outside the workspace container -->
+    {% block global_modals %}{% endblock %}
+
+    <script>
+function switchTab(viewId) {
+    // 1. Un-highlight the current active navigation item
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+    // 2. Hide all tab content views
+    document.querySelectorAll('.tab-content').forEach(el => {
+        el.classList.remove('active');
+        el.style.display = 'none';
+    });
+
+    // 3. Show the selected tab
+    const targetTab = document.getElementById(viewId);
+    const targetNav = document.getElementById(`nav-${viewId}`);
+
+    if (targetTab) {
+        targetTab.classList.add('active');
+        targetTab.style.display = 'block';
+        if (targetNav) targetNav.classList.add('active');
+    }
+}
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,1158 @@
+<!-- language_practice/templates/index.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Inside templates/index.html - Wrap your existing workspace contents in this block: -->
+<div id="dashboard-main-view" class="tab-content active">
+<div class="workspace-container">
+
+    <!-- 1. Interactive Control Panel Filters Box & Regeneration Asset Tool -->
+    <section class="control-card">
+        <form method="GET" action="/practice" id="filterForm" class="checkbox-row" style="flex: 1; display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 24px;">
+            <div class="filter-group">
+                <span class="filter-label">Active Practice Columns</span>
+                <div class="checkbox-row">
+                    <span class="toggle-button active" style="background-color:#0f172a; color:#ffffff; cursor:default;">
+                        🇬🇧 EN (Master)
+                    </span>
+
+                    {% for lang in available_languages %}
+                    <label class="toggle-button {% if lang in selected_languages %}active{% endif %}">
+                        <input type="checkbox" name="lang" value="{{ lang }}" {% if lang in selected_languages %}checked{% endif %} style="display:none;" onchange="document.getElementById('filterForm').submit()">
+                        <span class="uppercase">{{ lang }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Center: Global Audio Player HUD -->
+            <div id="globalAudioHUD" style="background: #0f172a; color: #ffffff; padding: 10px 16px; border-radius: 8px; min-width: 320px; font-family: sans-serif; border: 1px solid #1e293b; display: flex; align-items: center; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+                    <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.05em;">Audio</span>
+                    <p id="hudTrackLabel" style="font-size: 12px; font-weight: 500; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0;">No audio playing</p>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span id="speedDisplay" style="font-size: 10px; font-family: monospace; font-weight: 700; color: #3b82f6; background: #0f172a; padding: 2px 4px; border-radius: 3px;">1.00x</span>
+                        <input type="range" id="speedSlider" min="0.5" max="2.0" step="0.05" value="1.0" oninput="updateHudPlaybackSpeed(this.value)" style="width: 80px; accent-color: #3b82f6; cursor: pointer; background: #475569; height: 4px; border-radius: 2px; appearance: none;">
+                    </div>
+                    <div style="display: flex; gap: 4px;">
+                        <button onclick="setHudSpeedPreset(0.75)" style="flex: 1; font-size: 9px; background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 2px 4px; border-radius: 3px; cursor: pointer;">0.75x</button>
+                        <button onclick="setHudSpeedPreset(1.0)" style="flex: 1; font-size: 9px; background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 2px 4px; border-radius: 3px; cursor: pointer;">1.0x</button>
+                        <button onclick="setHudSpeedPreset(1.25)" style="flex: 1; font-size: 9px; background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 2px 4px; border-radius: 3px; cursor: pointer;">1.25x</button>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                    <button id="hudPauseBtn" onclick="toggleHudPlayback()" style="background: #3b82f6; border: none; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;">⏸</button>
+                    <button onclick="stopHudAudio()" style="background: #ef4444; border: none; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;">⏹</button>
+                </div>
+            </div>
+
+            <!-- Asynchronous Audio Maintenance Maintenance Module Call Button -->
+            <div>
+                <button type="button" onclick="triggerAudioRegeneration()" id="regenBtn" class="btn" style="background: #ffffff; color: #0284c7; border: 1px solid #b3e5fc; padding: 8px 16px; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+                    🔄 Regenerate Missing Audio
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Store selected languages for AI modal -->
+    <script>
+    const selectedLanguages = {{ selected_languages | tojson }};
+    </script>
+
+    <!-- 2. Dynamic Matrix Data Presentation Table Shell Layout -->
+    <section class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 80px;">ID</th>
+                    <th style="width: 280px;">🇬🇧 Master Phrase</th>
+                    <th style="width: 160px;">📊 Personal Stats</th>
+                    {% for lang in selected_languages %}
+                    <th style="width: 280px;" class="uppercase">🏳️ {{ lang }}</th>
+                    {% endfor %}
+                    <th style="width: 120px; text-align: center;">AI Assistant</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for phrase in phrases %}
+                <tr>
+                    <td style="color:#94a3b8; font-family:monospace; font-weight:600;">#{{ phrase.id }}</td>
+                    <td class="master-cell">
+                        <p>{{ phrase.master_phrase }}</p>
+                        <span style="display:inline-block; margin-top:6px; font-size:10px; background:#e0e7ff; color:#4338ca; padding:2px 6px; border-radius:4px; font-weight:700; text-transform:uppercase;">
+                            {{ phrase.category }}
+                        </span>
+                    </td>
+
+<!-- Locate the 📊 Personal Stats <td> cell inside language_practice/templates/index.html and drop this in -->
+<td class="translation-cell" style="font-size:12px; min-width: 140px;">
+    <!-- Dynamic State Color Tracking Shield -->
+    <div id="badge-{{ phrase.id }}" style="font-weight:700; margin-bottom:8px; color: {% if phrase.score >= 8 %}#065f46{% elif phrase.score >= 4 %}#b45309{% else %}#b91c1c{% endif %};">
+        • {{ phrase.mastery_status if phrase.mastery_status else "Needs Practice" }}
+    </div>
+
+    <div style="color:#64748b; margin-bottom: 10px;">
+        <p>Plays: <strong id="plays-{{ phrase.id }}">{{ phrase.play_count }}</strong></p>
+    </div>
+
+    <!-- Live Performance Grading Menu Selections Wrapper -->
+    <div style="margin-top: 8px; border-top: 1px dashed #e2e8f0; padding-top: 8px;">
+        <label style="font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; display: block; margin-bottom: 4px;">Self Score</label>
+        <select onchange="submitSelfScore('{{ phrase.id }}', this.value)" style="width: 100%; padding: 4px 8px; font-size: 12px; font-weight: 600; color: #334155; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer;">
+            {% for s in range(0, 11) %}
+            <option value="{{ s }}" {% if phrase.score == s %}selected{% endif %}>{{ s }}/10</option>
+            {% endfor %}
+        </select>
+    </div>
+</td>
+
+
+                    {% for lang in selected_languages %}
+                    <td class="translation-cell">
+                        {% if lang in phrase.translations %}
+                            <p style="font-weight:500; color:#1e293b;">{{ phrase.translations[lang].text }}</p>
+                            <div class="cell-actions">
+                                <button onclick="triggerAudioPlayback('{{ phrase.translations[lang].audio_path }}', '{{ phrase.id }}')" class="btn btn-play">
+                                    🔊 Play
+                                </button>
+                            </div>
+                        {% else %}
+                            <span style="color:#cbd5e1; font-style:italic;">Empty</span>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+
+                    <td style="text-align: center; vertical-align: middle;">
+                        <button onclick="triggerAiInference('{{ phrase.id }}')" class="btn btn-ai">
+                            ⚡ Ask AI
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</div>
+</div>
+
+<!-- ⚙️ NEW: The Configuration Panel Workspace View Container Overlay -->
+<div id="settings-view" class="tab-content" style="max-width: 800px; margin: 0 auto; background: #ffffff; padding: 32px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+    <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 6px;">System Configuration Control Deck</h2>
+    <p style="font-size: 13px; color: #64748b; margin-bottom: 24px;">Fine-tune your offline language model interfaces and macOS localized text-to-speech voice drivers.</p>
+
+    <form id="settingsForm">
+        <!-- section: AI Assistant Settings -->
+        <h3 style="font-size: 13px; font-weight: 700; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.05em; border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; margin-bottom: 16px;">🤖 Local Inference Engine Connection</h3>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+            <div class="filter-group">
+                <span class="filter-label">Inference Server Host URL</span>
+                <input type="text" id="cfg_llm_endpoint" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 500; color: #334155;">
+            </div>
+<!-- Locate and replace the Target Model String Name container block inside templates/index.html -->
+<div style="display: flex; flex-direction: column; gap: 6px;">
+    <label style="font-size: 12px; font-weight: 600; color: #475569;">Target Model Select Menu</label>
+    <!-- Turned this field from a rigid text input into a dynamic auto-populating select element dropdown -->
+    <select id="cfg_llm_model" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; color: #334155; background: #ffffff; cursor: pointer; width: 100%;">
+        <option value="">-- Click Test Connection to Fetch Local Models --</option>
+    </select>
+</div>
+
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+            <button type="button" onclick="testLlmConnection()" id="testLlmBtn" class="btn" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; font-weight: 600;">⚡ Test Connection</button>
+            <span id="llmTestStatus" style="font-size: 12px; font-weight: 600; display: inline-flex; align-items: center;"></span>
+        </div>
+
+        <div class="filter-group" style="margin-bottom: 32px; width: 50%;">
+            <span class="filter-label">AI Agent Prompt Persona</span>
+            <select id="cfg_ai_persona" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; color: #334155; background: #ffffff;">
+                <option value="negotiator">💰 The Shrewd Bazaar Negotiator</option>
+                <option value="coach">🎓 The Linguistic Grammar Coach</option>
+            </select>
+        </div>
+
+        <!-- section: Native Audio Selectors -->
+        <h3 style="font-size: 13px; font-weight: 700; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.05em; border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; margin-bottom: 16px;">🔊 Mac CoreAudio Speech Synthesizer Drivers</h3>
+
+        <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+            <button type="button" onclick="fetchSystemVoices()" id="fetchVoicesBtn" class="btn" style="background: #16a34a; color: #ffffff; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600;">🔄 Fetch Available Voices</button>
+            <span id="voicesFetchStatus" style="font-size: 12px; font-weight: 600; display: inline-flex; align-items: center;"></span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px;">
+            <div class="filter-group">
+                <span class="filter-label">🇺🇸 English Voice (EN)</span>
+                <select id="cfg_voice_en" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; color: #334155; background: #ffffff;">
+                    <option value=""> -- Master Language -- </option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">🇫🇷 French Voice (FR)</span>
+                <select id="cfg_voice_fr" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; color: #334155; background: #ffffff;">
+                    <option value="">-- Default --</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">🇷🇺 Russian Voice (RU)</span>
+                <select id="cfg_voice_ru" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; color: #334155; background: #ffffff;">
+                    <option value="">-- Default --</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">🇺🇦 Ukrainian Voice (UA)</span>
+                <select id="cfg_voice_ua" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; color: #334155; background: #ffffff;">
+                    <option value="">-- Default --</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">🇮🇹 Italian Voice (IT)</span>
+                <select id="cfg_voice_it" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; color: #334155; background: #ffffff;">
+                    <option value="">-- Default --</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">🇪🇸 Spanish Voice (ES)</span>
+                <select id="cfg_voice_es" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; color: #334155; background: #ffffff;">
+                    <option value="">-- Default --</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">🇳🇴 Norwegian Voice (NO)</span>
+                <select id="cfg_voice_no" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; color: #334155; background: #ffffff;">
+                    <option value="">-- Default --</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">🇸🇦 Arabic Voice (AR)</span>
+                <select id="cfg_voice_ar" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; color: #334155; background: #ffffff;">
+                    <option value="">-- Default --</option>
+                </select>
+            </div>
+        </div>
+        <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; display: flex; justify-content: flex-end;">
+            <button type="button" onclick="saveConfigurationDeck()" class="btn" style="background: #3b82f6; color: #ffffff; padding: 10px 24px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 2px 4px rgba(59,130,246,0.2);">💾 Save Configurations</button>
+        </div> <!-- save configurations div is showing on all pages needs to be fixed -->
+    </form>
+</div>
+
+<!-- 📝 TAB VIEW 3: PHRASE MANAGEMENT CRUD & BULK LOADER WORKSPACE OVERLAY -->
+<div id="management-view" class="tab-content" style="max-width: 900px; margin: 0 auto; background: #ffffff; padding: 32px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: none;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+        <div>
+            <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 6px;">Phrase Repository Manager</h2>
+            <p style="font-size: 13px; color: #64748b;">Add new workspace rows manually or bulk upload vocabulary templates offline.</p>
+        </div>
+        
+        <!-- 🔄 Bulk Spreadsheet Uploader Deck Widget -->
+        <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px dashed #cbd5e1; display: flex; align-items: center; gap: 12px;">
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+                <label style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Import Spreadsheet (.CSV)</label>
+                <input type="file" id="csvFileInput" accept=".csv" style="font-size: 12px; color: #475569;">
+            </div>
+            <button type="button" onclick="uploadCsvTemplate()" class="btn" style="background: #0284c7; color: white; padding: 6px 12px; font-size: 12px; border-radius: 6px; font-weight: 600;">📤 Upload</button>
+        </div>
+    </div>
+
+    <!-- Manual Creation Block Form Deck -->
+    <form id="newPhraseForm" style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 32px; border: 1px solid #e2e8f0;">
+        <h3 style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569; letter-spacing: 0.05em; margin-bottom: 12px;">➕ Insert Single Practice Phrase</h3>
+        
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 12px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 11px; font-weight: 600; color: #64748b;">English Master Text</label>
+                <input type="text" id="add_master_text" placeholder="e.g. Can you make a better discount for me?" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px;">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 11px; font-weight: 600; color: #64748b;">Category Tag</label>
+                <input type="text" id="add_category" value="El Kawther Bazaar" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px;">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 11px; font-weight: 600; color: #475569;">🇫🇷 French Translation</label>
+                <input type="text" id="add_lang_fr" style="padding: 6px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px;">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 11px; font-weight: 600; color: #475569;">🇷🇺 Russian Translation</label>
+                <input type="text" id="add_lang_ru" style="padding: 6px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px;">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 11px; font-weight: 600; color: #475569;">🇮🇹 Italian Translation</label>
+                <input type="text" id="add_lang_it" style="padding: 6px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px;">
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px;">
+            <label style="font-size: 11px; font-weight: 600; color: #64748b;">Practice Context / Negotiation Notes</label>
+            <input type="text" id="add_notes" placeholder="Upselling trigger phrase..." style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px;">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end;">
+            <button type="button" onclick="submitSinglePhrase()" class="btn" style="background: #16a34a; color: white; padding: 8px 20px; font-weight: 700; border-radius: 6px;">➕ Save Phrase Row</button>
+        </div>
+    </form>
+
+    <!-- Active Structural Inventory Decks List Summary -->
+    <h3 style="font-size: 13px; font-weight: 700; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.05em; margin-bottom: 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 6px;">📋 Active Phrase Inventory</h3>
+    <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <table style="width: 100%; border-collapse: collapse; background: white; font-size: 13px;">
+            <thead style="background: #f8fafc; position: sticky; top: 0; border-bottom: 1px solid #e2e8f0;">
+                <tr>
+                    <th style="padding: 10px; text-align: left; width: 60px;">ID</th>
+                    <th style="padding: 10px; text-align: left;">Master Phrase String</th>
+                    <th style="padding: 10px; text-align: left; width: 140px;">Category</th>
+                    <th style="padding: 10px; text-align: center; width: 100px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for phrase in phrases %}
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td style="padding: 10px; font-family: monospace; font-weight: 600; color: #64748b;">#{{ phrase.id }}</td>
+                    <td style="padding: 10px; font-weight: 500; color: #1e293b;">{{ phrase.master_phrase }}</td>
+                    <td style="padding: 10px;"><span style="font-size: 11px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; font-weight: 600;">{{ phrase.category }}</span></td>
+                    <td style="padding: 10px; text-align: center;">
+                        <button onclick="deleteRowRecord('{{ phrase.id }}')" style="background: transparent; border: none; color: #ef4444; font-weight: 700; cursor: pointer; font-size: 12px;">🗑️ Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ❓ TAB VIEW 4: HELP & DOCUMENTATION WORKSPACE OVERLAY -->
+<div id="help-view" class="tab-content" style="max-width: 900px; margin: 0 auto; background: #ffffff; padding: 32px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: none;">
+    <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 24px;">
+        <h2 style="font-size: 24px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">📚 LingoFlow System Documentation & Help</h2>
+        <p style="font-size: 14px; color: #64748b;">Learn how to maximize your linguistic practice, configure local AI engines, and manage static audio assets.</p>
+    </div>
+
+    <!-- Core Features Grid -->
+    <section style="margin-bottom: 32px;">
+        <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+            🚀 Core Application Features
+        </h3>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+            <div style="padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <h4 style="font-weight: 700; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">🎛️ Unified Practice Matrix</h4>
+                <p style="font-size: 13px; color: #64748b; line-height: 1.6;">Review conversational expressions across multiple languages simultaneously. Filter dynamically by categories (e.g., Bargaining, Transit, Social) to narrow down focus paths.</p>
+            </div>
+            <div style="padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <h4 style="font-weight: 700; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">🔊 Self-Compiling Audio Tracks</h4>
+                <p style="font-size: 13px; color: #64748b; line-height: 1.6;">The system scans local hard drive buffers on demand. If an audio file disappears or hasn't been generated yet, a native macOS TTS sub-routine instantly compiles it.</p>
+            </div>
+            <div style="padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <h4 style="font-weight: 700; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">⚡ Interactive AI Copilot</h4>
+                <p style="font-size: 13px; color: #64748b; line-height: 1.6;">Launches an instantaneous side drawer to harvest context-aware tactical tips, word-for-word grammatical decompositions, or localized bazaar negotiation lines.</p>
+            </div>
+            <div style="padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <h4 style="font-weight: 700; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">📥 Dynamic CSV Spreadsheet Import</h4>
+                <p style="font-size: 13px; color: #64748b; line-height: 1.6;">Bulk load vocabulary charts instantly. The system sanitizes text blocks, flags missing target cells, and formats SQLite indexing anchors automatically.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Architecture Configurations -->
+    <section style="margin-bottom: 32px; border-top: 1px solid #e2e8f0; padding-top: 32px;">
+        <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+            🤖 AI Engine Interfacing (llama.cpp vs. LM Studio)
+        </h3>
+        <p style="font-size: 13px; color: #64748b; margin-bottom: 16px;">
+            LingoFlow utilizes a refactored unified <code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #0f172a;">AsyncOpenAI</code> engine pipeline. You can dynamically switch endpoints via your Settings panel row:
+        </p>
+        <div style="overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <thead>
+                    <tr style="background: #f1f5f9; border-bottom: 1px solid #e2e8f0;">
+                        <th style="padding: 12px; text-align: left; font-weight: 700; color: #475569;">Target Platform</th>
+                        <th style="padding: 12px; text-align: left; font-weight: 700; color: #475569;">Default Base URL</th>
+                        <th style="padding: 12px; text-align: left; font-weight: 700; color: #475569;">Recommended Server Flags</th>
+                    </tr>
+                </thead>
+                <tbody style="color: #64748b;">
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 12px; font-weight: 600; color: #0f172a;">llama-server</td>
+                        <td style="padding: 12px;"><code style="background: #ffffff; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #0f172a;">http://127.0.0.1:8080</code></td>
+                        <td style="padding: 12px;"><code style="background: #ffffff; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #0f172a;">-c 4096 -np 1</code> (Enforces single-lane max performance)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; font-weight: 600; color: #0f172a;">LM Studio</td>
+                        <td style="padding: 12px;"><code style="background: #ffffff; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #0f172a;">http://127.0.0.1:1234</code></td>
+                        <td style="padding: 12px;">Ensure Cross-Origin Resource Sharing (CORS) is explicitly checked.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top: 16px; padding: 16px; border-radius: 8px; border: 1px solid #fcd34d; background: #fef3c7; color: #92400e; font-size: 12px; display: flex; gap: 8px; align-items: flex-start;">
+            <strong>⚠️ Troubleshooting Tip:</strong> If your side modal drawer displays indefinitely or fails to fetch, launch your browser dev console. Ensure the host endpoint is up, running, and successfully answering requests on the exact port configured in your app panel.
+        </div>
+    </section>
+
+    <!-- Troubleshooting FAQ -->
+    <section style="border-top: 1px solid #e2e8f0; padding-top: 32px;">
+        <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 16px;">❓ Frequently Asked Questions</h3>
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div>
+                <h4 style="font-weight: 700; color: #0f172a; font-size: 14px; margin-bottom: 4px;">How do I trigger full audio rebuilds?</h4>
+                <p style="font-size: 13px; color: #64748b; line-height: 1.6;">Navigate to your dashboard footer or toolbar parameters and tap "Regenerate Missing Assets". This will safely cross-verify every database phrase against local disk memory storage paths.</p>
+            </div>
+            <div>
+                <h4 style="font-weight: 700; color: #0f172a; font-size: 14px; margin-bottom: 4px;">Can I modify the AI's persona tone guidelines?</h4>
+                <p style="font-size: 13px; color: #64748b; line-height: 1.6;">Yes! In your system setup settings, shift between the <strong>Bazaar Negotiator</strong> profile (for sharp counter-offers) and the <strong>Linguistic Tutor</strong> matrix (for detailed semantic grammar tear-downs).</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+// Establish global runtime listener configurations
+let activeAudio = null;
+let globalPlaybackRate = 1.0; 
+
+function triggerAudioPlayback(audioPath, phraseId) {
+    if (!audioPath || audioPath === 'None' || audioPath === '') {
+        alert("Local audio file is compiling or unavailable. Click 'Regenerate Missing Audio' to build.");
+        return;
+    }
+
+    // Add this quick update patch line inside your fetch response loop within triggerAudioPlayback()
+    const playCounter = document.getElementById(`plays-${phraseId}`);
+    if (playCounter) {
+        playCounter.innerText = parseInt(playCounter.innerText) + 1;
+    }
+
+    // Halt running channels to avoid speaker bleeding overflows
+    if (activeAudio) {
+        activeAudio.pause();
+        activeAudio.currentTime = 0;
+    }
+
+    activeAudio = new Audio('/static/' + audioPath);
+    activeAudio.playbackRate = globalPlaybackRate;
+
+    activeAudio.play().catch(err => {
+        console.error("Audio playback failure hook event:", err);
+        alert("The physical audio stream could not initialize. Try running Regeneration.");
+    });
+
+    const label = document.getElementById("hudTrackLabel");
+    const pauseBtn = document.getElementById("hudPauseBtn");
+
+    label.innerText = "Now Playing: " + audioPath.split('/').pop();
+    pauseBtn.innerText = "⏸";
+
+    activeAudio.onended = () => {
+        label.innerText = "No audio playing";
+        pauseBtn.innerText = "⏸";
+        activeAudio = null;
+    };
+
+    fetch("/api/practice/" + phraseId + "/track?increment_play=true", { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            console.log("Persistence data synchronization tracker verified:", data);
+        });
+}
+
+function updateHudPlaybackSpeed(value) {
+    globalPlaybackRate = parseFloat(value);
+    document.getElementById("speedDisplay").innerText = globalPlaybackRate.toFixed(2) + "x";
+    document.getElementById("speedSlider").value = value;
+
+    if (activeAudio) {
+        activeAudio.playbackRate = globalPlaybackRate;
+    }
+}
+
+function setHudSpeedPreset(presetValue) {
+    updateHudPlaybackSpeed(presetValue);
+}
+
+function toggleHudPlayback() {
+    if (!activeAudio) return;
+    const btn = document.getElementById("hudPauseBtn");
+    if (activeAudio.paused) {
+        activeAudio.play();
+        btn.innerText = "⏸";
+    } else {
+        activeAudio.pause();
+        btn.innerText = "▶";
+    }
+}
+
+function stopHudAudio() {
+    if (activeAudio) {
+        activeAudio.pause();
+        activeAudio.currentTime = 0;
+        document.getElementById("hudTrackLabel").innerText = "No audio playing";
+        document.getElementById("hudPauseBtn").innerText = "⏸";
+        activeAudio = null;
+    }
+}
+
+// Background Task Pipeline to call the main audio generation asset loops
+function triggerAudioRegeneration() {
+    const btn = document.getElementById("regenBtn");
+    const originalText = btn.innerText;
+    btn.innerText = "⚡ Compiling Audio Assets...";
+    btn.style.opacity = "0.6";
+    btn.disabled = true;
+    fetch("/api/practice/regenerate-audio", { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            alert(`${data.message}\nGrid layout will now refresh to link missing voice tags.`);
+            window.location.reload();
+        })
+        .catch(err => {
+            console.error("Audio generation routine crashed:", err);
+            alert("The back-end compiler failed to execute native system system voice processes.");
+        })
+        .finally(() => {
+            btn.innerText = originalText;
+            btn.style.opacity = "1";
+            btn.disabled = false;
+        });
+}
+
+function triggerAiInference(phraseId) {
+    console.log("triggerAiInference called with phraseId:", phraseId);
+
+    // 1. Locate and capture the calling button reference row element
+    let targetButton = null;
+    document.querySelectorAll('.btn-ai').forEach(btn => {
+        if(btn.getAttribute('onclick').includes(`'${phraseId}'`)) {
+            targetButton = btn;
+        }
+    });
+
+    const originalText = targetButton ? targetButton.innerText : "⚡ Ask AI";
+    if (targetButton) {
+        targetButton.innerText = "⏳ Thinking...";
+        targetButton.style.opacity = "0.5";
+        targetButton.disabled = true;
+    }
+
+    // 2. Fetch the row item properties directly from the active row cell columns
+    const masterTextParagraph = targetButton.closest('tr').querySelector('.master-cell p').innerText;
+
+    // 3. Set up default loading states inside the modal container text areas
+    document.getElementById("modalMasterPhraseText").innerText = masterTextParagraph;
+    document.getElementById("modalMasterPhraseText").setAttribute("data-phrase-id", phraseId);
+    document.getElementById("modalAiResponseTerminal").innerHTML = `<span style="color:#64748b; font-style:italic; display:inline-flex; align-items:center; gap:8px;">⏳ Querying your local Mac model. Processing layout rows...</span>`;
+    document.getElementById("modalTranslationPatchAlert").style.display = "none";
+    document.getElementById("modalActionRefreshBtn").style.display = "none";
+
+    // 4. Open the sidebar modal view IMMEDIATELY with a clean sliding animation transition
+    const modal = document.getElementById("aiCoPilotModal");
+    console.log("Modal element:", modal);
+    if (modal) {
+        modal.style.right = "0px";
+        console.log("Modal opened, right position set to:", modal.style.right);
+    } else {
+        console.error("Modal element not found!");
+        alert("Error: AI Modal not found in the page.");
+        return;
+    }
+
+    // 5. Dispatch async loopback request to our custom llama-server proxy endpoint
+    fetch(`/api/practice/${phraseId}/ai`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ languages: selectedLanguages })
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "success") {
+                // Fetch active configuration tags to personalize styles inside the modal context container fields
+                fetch('/api/settings')
+                    .then(r => r.json())
+                    .then(settings => {
+                        const persona = settings.ai_persona || "negotiator";
+                        const activeModel = settings.llm_model || "local-model";
+
+                        // Map visual treatments dynamically based on active system parameters
+                        const emojiEl = document.getElementById("modalPersonaEmoji");
+                        const titleEl = document.getElementById("modalPersonaTitle");
+                        const modelLabelEl = document.getElementById("modalMetaModelLabel");
+
+                        modelLabelEl.innerText = `active model: ${activeModel.split('/').pop()}`;
+
+                        if (persona === "negotiator") {
+                            emojiEl.innerText = "💰";
+                            titleEl.innerText = "The Shrewd Bazaar Negotiator";
+                            modal.querySelector('div').style.borderBottomColor = "#eab308"; // Golden accent highlights
+                        } else {
+                            emojiEl.innerText = "🎓";
+                            titleEl.innerText = "The Linguistic Grammar Coach";
+                            modal.querySelector('div').style.borderBottomColor = "#4f46e5"; // Indigo academic highlights
+                        }
+                    });
+
+                // Update content fields with response data from your local engine
+                document.getElementById("modalAiResponseTerminal").innerText = data.ai_analysis;
+
+                // If translations were missing, toggle visibility on the notification banner alerts
+                if (data.translations_patched) {
+                    document.getElementById("modalTranslationPatchAlert").style.display = "flex";
+                    document.getElementById("modalActionRefreshBtn").style.display = "block";
+                }
+            } else {
+                document.getElementById("modalAiResponseTerminal").innerHTML = `<span style="color:#ef4444; font-weight:600;">❌ Local Engine Error:</span>\n\n${data.message}`;
+            }
+        })
+        .catch(err => {
+            console.error("AI Assistant bridge connection failure:", err);
+            document.getElementById("modalAiResponseTerminal").innerHTML = `<span style="color:#ef4444; font-weight:600;">❌ Timeout Exception:</span>\n\nCould not reach your running llama-server. Verify port 8080 is active inside your Mac shell window.`;
+        })
+        .finally(() => {
+            if (targetButton) {
+                targetButton.innerText = originalText;
+                targetButton.style.opacity = "1";
+                targetButton.disabled = false;
+            }
+        });
+}
+
+function closeAiCoPilotModal() {
+    // Hide the sidebar view frame back off-screen cleanly
+    const modal = document.getElementById("aiCoPilotModal");
+    if (modal) {
+        modal.style.right = "-460px";
+    }
+}
+
+// Test function to open modal without API call - call from browser console: testOpenModal()
+function testOpenModal() {
+    const modal = document.getElementById("aiCoPilotModal");
+    console.log("Test open modal - element:", modal);
+    if (modal) {
+        modal.style.right = "0px";
+        console.log("Modal opened via test function");
+    } else {
+        console.error("Modal element not found!");
+    }
+}
+
+// Helper function to apply preset prompts to the input field
+function applyPresetPrompt(promptText) {
+    const inputField = document.getElementById("modalCustomCommandInput");
+    if (inputField) {
+        inputField.value = promptText;
+        inputField.focus();
+    }
+}
+
+// Execute custom AI command from the modal input
+function executeCustomAiCommand() {
+    const inputField = document.getElementById("modalCustomCommandInput");
+    const commandText = inputField.value.trim();
+    if (!commandText) return;
+
+    // Store the current phrase ID for the API call
+    const currentPhraseId = document.getElementById("modalMasterPhraseText").getAttribute("data-phrase-id");
+
+    // Show loading state
+    const terminal = document.getElementById("modalAiResponseTerminal");
+    terminal.innerHTML = `<span style="color:#64748b; font-style:italic;">⏳ Processing custom command...</span>`;
+
+    // Send the custom command to the AI endpoint
+    fetch(`/api/practice/${currentPhraseId}/ai`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command: commandText, languages: selectedLanguages })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            terminal.innerText = data.ai_analysis;
+
+            // Check if the response contains a proposed master text
+            // Look for patterns like "Suggested: ..." or "Proposed: ..." or "Try: ..."
+            const responseLower = data.ai_analysis.toLowerCase();
+            if (responseLower.includes("suggested:") || responseLower.includes("proposed:") || responseLower.includes("try:")) {
+                // Extract the proposed text (simple extraction)
+                const lines = data.ai_analysis.split('\n');
+                for (const line of lines) {
+                    if (line.toLowerCase().includes("suggested:") || line.toLowerCase().includes("proposed:") || line.toLowerCase().includes("try:")) {
+                        const proposedText = line.split(/:|=>/)[1]?.trim();
+                        if (proposedText && proposedText.length > 0) {
+                            proposedMasterTextValue = proposedText;
+                            document.getElementById("proposedMasterText").innerText = proposedText;
+                            document.getElementById("confirmationUI").style.display = "block";
+                            break;
+                        }
+                    }
+                }
+            }
+        } else {
+            terminal.innerHTML = `<span style="color:#ef4444; font-weight:600;">❌ Error:</span>\n\n${data.message}`;
+        }
+    })
+    .catch(err => {
+        console.error("Custom command failed:", err);
+        terminal.innerHTML = `<span style="color:#ef4444; font-weight:600;">❌ Failed:</span>\n\nCould not process your request.`;
+    });
+
+    // Clear the input field
+    inputField.value = "";
+}
+
+// Generate translations for missing languages
+function generateTranslations() {
+    const currentPhraseId = document.getElementById("modalMasterPhraseText").getAttribute("data-phrase-id");
+    const terminal = document.getElementById("modalAiResponseTerminal");
+    const btn = document.getElementById("generateTransBtn");
+
+    if (!currentPhraseId) {
+        terminal.innerHTML = `<span style="color:#ef4444; font-weight:600;">❌ Error:</span>\n\nPhrase ID not found.`;
+        return;
+    }
+
+    // Show loading state
+    const originalText = btn.innerText;
+    btn.innerText = "⏳ Generating...";
+    btn.disabled = true;
+    terminal.innerHTML = `<span style="color:#64748b; font-style:italic;">⏳ Generating translations with audio files...</span>`;
+
+    fetch(`/api/practice/${currentPhraseId}/generate-translations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ languages: selectedLanguages })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            terminal.innerHTML = `<span style="color:#16a34a; font-weight:600;">✅ Success:</span>\n\n${data.message}`;
+            document.getElementById("modalTranslationPatchAlert").style.display = "flex";
+            document.getElementById("modalActionRefreshBtn").style.display = "block";
+        } else {
+            terminal.innerHTML = `<span style="color:#ef4444; font-weight:600;">❌ Error:</span>\n\n${data.message}`;
+        }
+    })
+    .catch(err => {
+        console.error("Translation generation failed:", err);
+        terminal.innerHTML = `<span style="color:#ef4444; font-weight:600;">❌ Failed:</span>\n\nCould not generate translations.`;
+    })
+    .finally(() => {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    });
+}
+
+// Store proposed master text for confirmation
+let proposedMasterTextValue = null;
+
+// Confirm master text update
+function confirmMasterUpdate() {
+    if (!proposedMasterTextValue) return;
+
+    const currentPhraseId = document.getElementById("modalMasterPhraseText").getAttribute("data-phrase-id");
+    const terminal = document.getElementById("modalAiResponseTerminal");
+
+    terminal.innerHTML = `<span style="color:#64748b; font-style:italic;">⏳ Updating master text and regenerating translations...</span>`;
+
+    fetch(`/api/practice/${currentPhraseId}/update-master`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ new_master_text: proposedMasterTextValue })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success" || data.status === "partial") {
+            terminal.innerHTML = `<span style="color:#16a34a; font-weight:600;">✅ Success:</span>\n\n${data.message}`;
+            document.getElementById("modalActionRefreshBtn").style.display = "block";
+        } else {
+            terminal.innerHTML = `<span style="color:#ef4444; font-weight:600;">❌ Error:</span>\n\n${data.message}`;
+        }
+    })
+    .catch(err => {
+        console.error("Master text update failed:", err);
+        terminal.innerHTML = `<span style="color:#ef4444; font-weight:600;">❌ Failed:</span>\n\nCould not update master text.`;
+    })
+    .finally(() => {
+        // Hide confirmation UI
+        document.getElementById("confirmationUI").style.display = "none";
+        proposedMasterTextValue = null;
+    });
+}
+
+// Cancel master text update
+function cancelMasterUpdate() {
+    document.getElementById("confirmationUI").style.display = "none";
+    proposedMasterTextValue = null;
+}
+
+// Append this function inside the primary script tag context at the bottom of templates/index.html
+
+function submitSelfScore(phraseId, selectedScore) {
+    fetch(`/api/practice/${phraseId}/score?score=${selectedScore}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "success") {
+                // Instantly update badge textual elements without causing a full layout reload repaint
+                const badgeEl = document.getElementById(`badge-${phraseId}`);
+                badgeEl.innerText = data.mastery_badge;
+
+                // Dynamically recolor badge tags to match performance metrics tier states
+                const scoreInt = parseInt(selectedScore);
+                if (scoreInt >= 8) {
+                    badgeEl.style.color = "#065f46"; // Clean Emerald Green
+                } else if (scoreInt >= 4) {
+                    badgeEl.style.color = "#b45309"; // Warm Amber
+                } else {
+                    badgeEl.style.color = "#b91c1c"; // Crimson Alert Red
+                }
+            }
+        })
+        .catch(err => console.error("Self grading telemetry sync failure:", err));
+}
+
+// Load active database system preferences whenever page hits render boundaries
+// document.addEventListener("DOMContentLoaded", () => {
+//     fetch('/api/settings')
+//         .then(res => res.json())
+//         .then(data => {
+//             if (data.llm_endpoint) document.getElementById("cfg_llm_endpoint").value = data.llm_endpoint;
+//             if (data.llm_model) document.getElementById("cfg_llm_model").value = data.llm_model;
+//             if (data.ai_persona) document.getElementById("cfg_ai_persona").value = data.ai_persona;
+//             if (data.voice_en) document.getElementById("cfg_voice_en").value = data.voice_en;
+//             if (data.voice_fr) document.getElementById("cfg_voice_fr").value = data.voice_fr;
+//             if (data.voice_ru) document.getElementById("cfg_voice_ru").value = data.voice_ru;
+//             if (data.voice_ua) document.getElementById("cfg_voice_ua").value = data.voice_ua;
+//             if (data.voice_it) document.getElementById("cfg_voice_it").value = data.voice_it;
+//             if (data.voice_es) document.getElementById("cfg_voice_es").value = data.voice_es;
+//             if (data.voice_no) document.getElementById("cfg_voice_no").value = data.voice_no;
+//             if (data.voice_ar) document.getElementById("cfg_voice_ar").value = data.voice_ar;
+//         });
+// });
+
+function saveConfigurationDeck() {
+    const payload = {
+        llm_endpoint: document.getElementById("cfg_llm_endpoint").value,
+        llm_model: document.getElementById("cfg_llm_model").value,
+        ai_persona: document.getElementById("cfg_ai_persona").value,
+        voice_en: document.getElementById("cfg_voice_en").value,
+        voice_fr: document.getElementById("cfg_voice_fr").value,
+        voice_ru: document.getElementById("cfg_voice_ru").value,
+        voice_ua: document.getElementById("cfg_voice_ua").value,
+        voice_it: document.getElementById("cfg_voice_it").value,
+        voice_es: document.getElementById("cfg_voice_es").value,
+        voice_no: document.getElementById("cfg_voice_no").value,
+        voice_ar: document.getElementById("cfg_voice_ar").value
+    };
+
+    fetch('/api/settings/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === "success") {
+            alert("System preferences saved locally to SQLite data decks.");
+            window.location.href = "/practice"; // Route back to master grid safely
+        }
+    });
+}
+
+// Global tracker array to save loaded model configurations across runtime cycles
+let discoveredModelsCache = [];
+
+// Fetch available macOS voices using say command and save to database.
+// Maps locale suffixes to language codes.
+function fetchSystemVoices() {
+    fetch('/api/settings/fetch-voices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === "success") {
+            //alert(JSON.stringify(data)); // now all 8 voices are matched with regex
+            alert(data.message);
+        }
+    })
+    .catch(err => {
+        console.error("Failed to fetch system voices:", err);
+        alert("Failed to fetch system voices.");
+    });
+}
+
+function testLlmConnection() {
+    const endpoint = document.getElementById("cfg_llm_endpoint").value;
+    const statusEl = document.getElementById("llmTestStatus");
+    const btn = document.getElementById("testLlmBtn");
+    const modelDropdown = document.getElementById("cfg_llm_model");
+    
+    statusEl.innerText = "⏳ Pinging endpoint host...";
+    statusEl.style.color = "#475569";
+    btn.disabled = true;
+    
+    fetch('/api/settings/test-llm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ endpoint: endpoint })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === "connected") {
+            statusEl.innerText = "✅ " + data.message;
+            statusEl.style.color = "#16a34a";
+            
+            // Clear standard placeholder items out of the dropdown view container
+            const currentSelectedValue = modelDropdown.value;
+            modelDropdown.innerHTML = "";
+            
+            if (data.models && data.models.length > 0) {
+                discoveredModelsCache = data.models;
+                data.models.forEach(modelName => {
+                    const opt = document.createElement("option");
+                    opt.value = modelName;
+                    opt.innerText = modelName;
+                    // Keep selection focus if modifying endpoints fluidly
+                    if (modelName === currentSelectedValue) {
+                        opt.selected = true;
+                    }
+                    modelDropdown.appendChild(opt);
+                });
+            } else {
+                const opt = document.createElement("option");
+                opt.value = "";
+                opt.innerText = "-- Connected but 0 models discovered --";
+                modelDropdown.appendChild(opt);
+            }
+        } else {
+            statusEl.innerText = "❌ " + data.message;
+            statusEl.style.color = "#dc2626";
+        }
+    })
+    .catch(err => {
+        statusEl.innerText = "❌ Connection timed out.";
+        statusEl.style.color = "#dc2626";
+    })
+    .finally(() => {
+        btn.disabled = false;
+    });
+}
+
+// Modify the initial boot loader listener logic to render configuration records securely on startup
+document.addEventListener("DOMContentLoaded", () => {
+    fetch('/api/settings')
+        .then(res => res.json())
+        .then(data => {
+            if (data.llm_endpoint) document.getElementById("cfg_llm_endpoint").value = data.llm_endpoint;
+            if (data.ai_persona) document.getElementById("cfg_ai_persona").value = data.ai_persona;
+            if (data.voice_en) document.getElementById("cfg_voice_en").value = data.voice_en;
+            if (data.voice_fr) document.getElementById("cfg_voice_fr").value = data.voice_fr;
+            if (data.voice_ru) document.getElementById("cfg_voice_ru").value = data.voice_ru;
+            if (data.voice_ua) document.getElementById("cfg_voice_ua").value = data.voice_ua;
+            if (data.voice_es) document.getElementById("cfg_voice_es").value = data.voice_es;
+            if (data.voice_it) document.getElementById("cfg_voice_it").value = data.voice_it;
+            if (data.voice_no) document.getElementById("cfg_voice_no").value = data.voice_no;
+            if (data.voice_ar) document.getElementById("cfg_voice_ar").value = data.voice_ar;
+            
+            // If a model is already active inside SQLite, inject it as the highlighted dropdown choice
+            if (data.llm_model) {
+                const modelDropdown = document.getElementById("cfg_llm_model");
+                modelDropdown.innerHTML = `<option value="${data.llm_model}" selected>${data.llm_model}</option>`;
+            }
+
+            // If a voice is already active inside SQLite, inject it as the highlighted dropdown choice
+            if (data.voice_en) {
+                const voiceDropdown = document.getElementById("cfg_voice_en");
+                voiceDropdown.innerHTML = `<option value="${data.voice_en}" selected>${data.voice_en}</option>`;
+            }
+            if (data.voice_fr) {
+                const voiceDropdown = document.getElementById("cfg_voice_fr");
+                voiceDropdown.innerHTML = `<option value="${data.voice_fr}" selected>${data.voice_fr}</option>`;
+            }
+            if (data.voice_ru) {
+                const voiceDropdown = document.getElementById("cfg_voice_ru");
+                voiceDropdown.innerHTML = `<option value="${data.voice_ru}" selected>${data.voice_ru}</option>`;
+            }
+            if (data.voice_ua) {
+                const voiceDropdown = document.getElementById("cfg_voice_ua");
+                voiceDropdown.innerHTML = `<option value="${data.voice_ua}" selected>${data.voice_ua}</option>`;
+            }
+            if (data.voice_es) {
+                const voiceDropdown = document.getElementById("cfg_voice_es");
+                voiceDropdown.innerHTML = `<option value="${data.voice_es}" selected>${data.voice_es}</option>`;
+            }
+            if (data.voice_it) {
+                const voiceDropdown = document.getElementById("cfg_voice_it");
+                voiceDropdown.innerHTML = `<option value="${data.voice_it}" selected>${data.voice_it}</option>`;
+            }
+            if (data.voice_no) {
+                const voiceDropdown = document.getElementById("cfg_voice_no");
+                voiceDropdown.innerHTML = `<option value="${data.voice_no}" selected>${data.voice_no}</option>`;
+            }
+            if (data.voice_ar) {
+                const voiceDropdown = document.getElementById("cfg_voice_ar");
+                voiceDropdown.innerHTML = `<option value="${data.voice_ar}" selected>${data.voice_ar}</option>`;
+            }
+
+        });
+});
+
+// --- PHRASE REPOSITORY CRUD & TELEMETRY LOADER ROUTINES ---
+
+function submitSinglePhrase() {
+    const payload = {
+        master_text: document.getElementById("add_master_text").value,
+        category: document.getElementById("add_category").value,
+        practice_notes: document.getElementById("add_notes").value,
+        translations: {
+            fr: document.getElementById("add_lang_fr").value,
+            ru: document.getElementById("add_lang_ru").value,
+            ua: document.getElementById("add_lang_ua").value,
+            it: document.getElementById("add_lang_it").value,
+            es: document.getElementById("add_lang_es").value,
+            no: document.getElementById("add_lang_no").value,
+            ar: document.getElementById("add_lang_ar").value
+        }
+    };
+
+    if (!payload.master_text.strip && !payload.master_text) {
+        alert("Please supply a baseline English string phrase container.");
+        return;
+    }
+
+    fetch('/api/phrases/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            alert(data.message + "\nClick 'Regenerate Missing Audio' to build audio files.");
+            window.location.reload();
+        }
+    })
+    .catch(err => console.error("Single row append engine exception:", err));
+}
+
+function deleteRowRecord(phraseId) {
+    if (!confirm(`Confirm absolute removal sequence for phrase track records variant #${phraseId}?`)) return;
+
+    fetch(`/api/phrases/${phraseId}`, { method: 'DELETE' })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            window.location.reload();
+        }
+    });
+}
+
+function uploadCsvTemplate() {
+    const fileInput = document.getElementById("csvFileInput");
+    if (fileInput.files.length === 0) {
+        alert("Please target a valid spreadsheet .csv file anchor layout.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+
+    fetch('/api/phrases/import-csv', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            alert(data.message + "\nBulk import parsed cleanly. Triggering matrix sync compilation pass.");
+            window.location.reload();
+        }
+    })
+    .catch(err => console.error("CSV engine parser tracking fault trace:", err));
+}
+
+</script>
+{% endblock %}
+
+{% block global_modals %}
+<!-- 🤖 THE INTERACTIVE SIDE-DRAWER AI CO-PILOT HUD WORKSPACE MODAL (Outside content block to avoid tab conflicts) -->
+<div id="aiCoPilotModal" style="position: fixed; top: 0; right: -460px; width: 420px; height: 100vh; background: #ffffff; box-shadow: -8px 0 32px rgba(15, 23, 42, 0.15); border-left: 1px solid #e2e8f0; z-index: 2000; display: flex; flex-direction: column; transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1); font-family: system-ui, -apple-system, sans-serif;">
+
+    <!-- 1. Strategic Sidebar Header Panel Wrap -->
+    <div style="background: #0f172a; padding: 20px; color: #ffffff; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #3b82f6;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span id="modalPersonaEmoji" style="font-size: 20px;">💰</span>
+            <div>
+                <h3 id="modalPersonaTitle" style="font-size: 14px; font-weight: 700; margin: 0; letter-spacing: -0.01em;">The Shrewd Bazaar Negotiator</h3>
+                <span id="modalMetaModelLabel" style="font-size: 10px; color: #94a3b8; font-family: monospace;">llama-server v1</span>
+            </div>
+        </div>
+        <button onclick="closeAiCoPilotModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 18px; font-weight: 700; cursor: pointer; padding: 4px; transition: color 0.1s;" onmouseover="this.style.color='#ffffff'" onmouseout="this.style.color='#94a3b8'">✕</button>
+    </div>
+
+    <!-- 2. Target Context Metadata Grid -->
+    <div style="background: #f8fafc; padding: 16px; border-bottom: 1px solid #e2e8f0;">
+        <span style="font-size: 10px; font-weight: 700; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;">Active Practice Context</span>
+        <p id="modalMasterPhraseText" style="font-size: 14px; font-weight: 600; color: #1e293b; margin: 0; line-height: 1.4;"></p>
+        <div id="modalTranslationPatchAlert" style="margin-top: 8px; display: none; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 6px 10px; border-radius: 6px; font-size: 11px; color: #065f46; font-weight: 600; align-items: center; gap: 6px;">
+            ✨ Translations generated successfully!
+        </div>
+    </div>
+
+    <!-- 3. Dynamic Terminal Response Window Container -->
+    <div style="flex: 1; padding: 20px; overflow-y: auto; background: #ffffff; display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+            <span style="font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">AI Copilot Analysis Insights</span>
+
+            <!-- Terminal Response Field -->
+            <div id="modalAiResponseTerminal" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; min-height: 200px; font-size: 13px; color: #334155; line-height: 1.6; white-space: pre-wrap; font-weight: 500;"></div>
+        </div>
+    </div>
+
+    <!-- 💬 CUSTOM PROMPT INTERACTION COMMAND MODULE -->
+    <div style="margin-top: 12px; border-top: 1px solid #f1f5f9; padding-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+        <span style="font-size: 10px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.05em;">Interactive Command Box</span>
+
+        <div style="display: flex; gap: 8px;">
+            <input type="text" id="modalCustomCommandInput" placeholder="e.g. Make this phrase more formal..." style="flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 500; outline: none; background: #ffffff; color: #1e293b;" onkeydown="if(event.key==='Enter') executeCustomAiCommand()">
+            <button onclick="executeCustomAiCommand()" id="modalSendCommandBtn" style="background: #0f172a; color: #ffffff; border: none; padding: 0 16px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: background 0.1s;">Ask</button>
+        </div>
+
+        <!-- Generate Translations Button -->
+        <button onclick="generateTranslations()" id="generateTransBtn" style="background: #16a34a; color: #ffffff; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; justify-content: center;">
+            🌐 Generate Translations
+        </button>
+
+        <!-- Quick Preset Suggestion Tags Row -->
+        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px;">
+            <button onclick="applyPresetPrompt('Make this phrase more formal and professional')" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; padding: 4px 8px; font-size: 10px; border-radius: 4px; cursor: pointer; font-weight: 600;">🎩 More Formal</button>
+            <button onclick="applyPresetPrompt('Make this phrase simpler and more casual')" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; padding: 4px 8px; font-size: 10px; border-radius: 4px; cursor: pointer; font-weight: 600;">😊 More Casual</button>
+            <button onclick="applyPresetPrompt('Provide a more complex variation of this phrase')" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; padding: 4px 8px; font-size: 10px; border-radius: 4px; cursor: pointer; font-weight: 600;">📚 More Complex</button>
+            <button onclick="applyPresetPrompt('Explain the grammar and meaning of this phrase')" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; padding: 4px 8px; font-size: 10px; border-radius: 4px; cursor: pointer; font-weight: 600;">� Explain</button>
+        </div>
+    </div>
+
+    <!-- Confirmation UI for Master Text Update -->
+    <div id="confirmationUI" style="margin-top: 12px; border-top: 1px solid #f1f5f9; padding-top: 16px; display: none;">
+        <span style="font-size: 10px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 8px;">Confirm Changes</span>
+        <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 12px;">
+            <p style="font-size: 12px; color: #64748b; margin: 0 0 8px 0;">Proposed new master text:</p>
+            <p id="proposedMasterText" style="font-size: 13px; font-weight: 600; color: #0f172a; margin: 0; background: #ffffff; padding: 8px; border-radius: 4px; border: 1px solid #cbd5e1;"></p>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button onclick="confirmMasterUpdate()" style="flex: 1; background: #16a34a; color: #ffffff; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">✓ Yes, Update</button>
+            <button onclick="cancelMasterUpdate()" style="flex: 1; background: #ef4444; color: #ffffff; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">✗ Cancel</button>
+        </div>
+    </div>
+
+    <!-- 4. Interactive Footer Actions Row -->
+    <div style="padding: 16px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; gap: 12px;">
+        <button onclick="closeAiCoPilotModal()" class="btn" style="flex: 1; background: #ffffff; color: #475569; border: 1px solid #cbd5e1; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center;">Close Panel</button>
+        <button id="modalActionRefreshBtn" onclick="window.location.reload()" class="btn" style="flex: 1; background: #3b82f6; color: #ffffff; border: none; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; text-align: center; display: none; box-shadow: 0 2px 4px rgba(59,130,246,0.15);">🔄 Refresh Grid</button>
+    </div>
+</div>
+{% endblock %}

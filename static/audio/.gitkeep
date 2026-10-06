@@ -1,0 +1,2 @@
+# This file ensures the audio directory is preserved in git
+# Generated MP3 files are ignored via .gitignore
